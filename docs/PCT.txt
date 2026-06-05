@@ -1,0 +1,25 @@
+#include <WiFi.h>
+#include <PubSubClient.h>
+
+#include "app_system.h" // 引入系统业务模块
+#include "wifi_mqtt.h"  // 引入网络模块
+
+void setup() {
+    Serial.begin(115200);
+    
+    // 1. 初始化所有业务硬件和状态
+    app_system_init();
+    
+    // 2. 初始化网络并连接服务器
+    wifi_mqtt_init();
+    
+    Serial.println("\n系统全面启动完毕，开始运行！");
+}
+
+void loop() {
+    // 1. 维持底层网络心跳
+    wifi_mqtt_loop(); 
+    
+    // 2. 处理所有顶层业务（按键、传感控制、屏幕、上报）
+    app_system_loop(); 
+}

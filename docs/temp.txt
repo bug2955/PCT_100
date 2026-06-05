@@ -1,0 +1,72 @@
+#include "temp_sensor.h"
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
+// 实例化单总线和温度传感器对象
+OneWire oneWire(TEMP_SENSOR_PIN);
+DallasTemperature sensors(&oneWire);
+
+// ★ 新增：缓存机制变量
+static unsigned long lastTempRequestTime = 0;
+static float cachedTemp = 25.0; // 默认给个正常室温，防止开机短暂显示异常
+
+void temp_sensor_init(void) {
+    sensors.begin(); 
+    
+    // =================================================================
+    // ★ 核心魔法：关闭强制等待！
+    // 告诉 DS18B20“你自己慢慢测，我一会再来拿”，彻底释放单片机 CPU
+    // =================================================================
+    sensors.setWaitForConversion(false); 
+    
+    sensors.requestTemperatures(); // 开机先发一个测温指令
+    lastTempRequestTime = millis();
+}
+
+// 获取真实温度值 (摄氏度)
+float get_temperature(void) {
+    unsigned long now = millis();
+    
+    // DS18B20 测温需要 750ms。我们设定每隔 1000ms (1秒) 才去收获一次数据
+    if (now - lastTempRequestTime >= 1000) {
+        
+        // 1. 拿走上一次已经测好的温度
+        float temp = sensors.getTempCByIndex(0);
+        
+        // 过滤掉断线时返回的错误值 (-127.0)
+        if (temp > -100.0) { 
+            cachedTemp = temp;
+        }
+        
+        // 2. 立刻告诉它：开始测下一次的温度吧！
+        sensors.requestTemperatures(); 
+        
+        // 3. 记录这次拿走数据的时间
+        lastTempRequestTime = now;
+    }
+    
+    // ★ 关键：无论何时调用这个函数，都瞬间返回“缓存”里的温度，耗时 0 毫秒！
+    return cachedTemp; 
+}
+
+
+
+
+#ifndef __TEMP_SENSOR_H
+#define __TEMP_SENSOR_H
+
+#include <Arduino.h>
+
+// ★ DS18B20 连接在 IO10
+#define TEMP_SENSOR_PIN 10 
+
+// =======================================================
+// ★ 温度控制风扇的阈值设定 (加入滞回区间)
+// =======================================================
+#define TEMP_THRESHOLD_ON  32.0   // 高于 32℃ 判定为过热，开启风扇
+#define TEMP_THRESHOLD_OFF 31.0   // 低于 31℃ 判定为凉爽，关闭风扇
+
+void temp_sensor_init(void);
+float get_temperature(void);
+
+#endif

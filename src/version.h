@@ -2,9 +2,9 @@
 #define __VERSION_H
 
 
-#define VERSION    "V1.0"
+#define VERSION    "V8.0"
 
-#define DEVICE_ID "PCT_100_001"  // 设备ID
+#define DEVICE_ID "PCT_100_014"  // 设备ID
 
 /* 项目信息 */
 #define PROJECT_NAME "PCT_100_CTL"

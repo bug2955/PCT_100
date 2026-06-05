@@ -1,0 +1,39 @@
+#include "light_sensor.h"
+
+void light_sensor_init(void) {
+    pinMode(LIGHT_SENSOR_PIN, INPUT);
+}
+
+// 获取光照处理后的数值 (范围 0 - 1000)
+uint16_t get_light_value(void) {
+    uint16_t raw_adc = analogRead(LIGHT_SENSOR_PIN); 
+    
+    // ★ 核心魔法：使用 map 函数
+    // 硬件原本：0 (最亮) -> 4095 (最暗)
+    // 映射目标：1000 (最亮) -> 0 (最暗)
+    uint16_t mapped_val = map(raw_adc, 0, 4095, 1000, 0);
+    
+    return mapped_val; 
+}
+
+
+
+
+h
+#ifndef __LIGHT_SENSOR_H
+#define __LIGHT_SENSOR_H
+
+#include <Arduino.h>
+
+#define LIGHT_SENSOR_PIN 1 
+
+// =======================================================
+// ★ 新的阈值设定：范围 0~1000，越暗数值越低
+// =======================================================
+#define LIGHT_THRESHOLD_ON  250   // 低于 250 判定为过暗，开启照明灯
+#define LIGHT_THRESHOLD_OFF 500   // 高于 500 判定为明亮，关闭照明灯
+
+void light_sensor_init(void);
+uint16_t get_light_value(void);
+
+#endif

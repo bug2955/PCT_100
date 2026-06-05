@@ -62,21 +62,26 @@ PCT_100 是专为化工自动化、过程控制课程设计的实训装置，让
 ```
 PCT_100/
 ├── PCT_100.ino          # 主程序入口
-├── app_system.cpp/h     # 核心业务逻辑
-├── temp_sensor.cpp/h    # DS18B20 驱动
-├── light_sensor.cpp/h   # BH1750 驱动
-├── oled_display.cpp/h   # OLED 显示驱动
-├── rgb_led.cpp/h        # RGB LED 驱动
-├── relay.cpp/h          # 继电器控制
-├── key.cpp/h            # 按键处理
-├── exti.cpp/h           # 外部中断
-├── wifi_mqtt.cpp/h      # WiFi + MQTT 通信
-├── version.h            # 版本信息
-├── index.html           # 产品说明书
-├── safety.html          # 化工安全知识
-├── projects.html        # 实训项目展示
-├── styles.css           # 网站样式
-└── README.md            # 项目说明
+├── src/                 # Arduino 源代码
+│   ├── app_system.cpp/h     # 核心业务逻辑
+│   ├── temp_sensor.cpp/h    # DS18B20 温度传感器驱动
+│   ├── light_sensor.cpp/h   # BH1750 光照传感器驱动
+│   ├── oled_display.cpp/h   # OLED 显示驱动
+│   ├── rgb_led.cpp/h        # RGB LED 驱动
+│   ├── relay.cpp/h          # 继电器控制
+│   ├── key.cpp/h            # 按键处理
+│   ├── exti.cpp/h           # 外部中断
+│   ├── wifi_mqtt.cpp/h      # WiFi + MQTT 通信
+│   └── version.h            # 版本信息
+├── website/             # 网站文档
+│   ├── index.html           # 产品说明书
+│   ├── safety.html          # 化工安全知识
+│   ├── projects.html        # 实训项目展示
+│   └── styles.css           # 网站样式
+├── docs/                # 模块说明文档
+├── README.md            # 项目说明
+├── LICENSE              # MIT 许可证
+└── .gitignore           # Git 忽略规则
 ```
 
 ---

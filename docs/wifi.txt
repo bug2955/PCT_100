@@ -1,0 +1,269 @@
+#include "wifi_mqtt.h"
+#include <WiFi.h>
+#include <PubSubClient.h>
+#include <Preferences.h> 
+#include "rgb_led.h" 
+
+const char* mqtt_server = "47.98.170.180";
+const char* mqtt_user = "dzdx_emqx";
+const char* mqtt_pass = "Jp4!sQ7$";     
+const char* client_id = "PCT_100_014";      
+
+// ★ 新增：订阅的控制指令Topic (根据老师的要求定义)
+const char* topic_command = "chemctrl/PCT_100_014/command"; 
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+Preferences prefs;
+
+// ★ 新增：用于存储业务层传进来的回调函数
+static void (*app_cmd_callback)(String) = NULL;
+
+enum WifiState {
+    WIFI_INIT, WIFI_WAIT_AUTO, WIFI_SCAN, WIFI_WAIT_INDEX, 
+    WIFI_WAIT_PASS, WIFI_CONNECTING, WIFI_CONNECTED, WIFI_IDLE          
+};
+static WifiState wifi_state = WIFI_INIT;
+static unsigned long wifi_timer = 0;
+static int scan_count = 0;
+static int selected_index = -1;
+static String target_ssid = "";
+static String target_pass = "";
+static String saved_ssid = "";
+static String saved_pass = "";
+
+static String get_serial_input_nonblocking() {
+    static String inputBuffer = "";
+    while (Serial.available()) {
+        char c = Serial.read();
+        if (c == '\n' || c == '\r') {
+            if (inputBuffer.length() > 0) {
+                String result = inputBuffer;
+                inputBuffer = "";
+                result.trim();
+                return result;
+            }
+        } else {
+            inputBuffer += c;
+        }
+    }
+    return "";
+}
+
+// =======================================================
+// ★ 新增：MQTT 底层消息接收中断函数
+// =======================================================
+void mqtt_callback_handler(char* topic, byte* payload, unsigned int length) {
+    String msg = "";
+    for (int i = 0; i < length; i++) {
+        msg += (char)payload[i];
+    }
+    
+    // 如果收到的主题是我们订阅的控制指令主题
+    if (String(topic) == String(topic_command)) {
+        // 如果业务层注册了回调函数，就把它扔给业务层处理
+        if (app_cmd_callback != NULL) {
+            app_cmd_callback(msg);
+        }
+    }
+}
+
+// =======================================================
+// 对外暴露的 API 函数实现
+// =======================================================
+void wifi_mqtt_set_cmd_callback(void (*callback)(String)) {
+    app_cmd_callback = callback;
+}
+
+void wifi_mqtt_init(void) {
+    client.setServer(mqtt_server, 8081);
+    client.setCallback(mqtt_callback_handler); // ★ 绑定接收中断函数
+    wifi_state = WIFI_INIT;
+}
+
+void wifi_mqtt_loop(void) {
+    switch (wifi_state) {
+        case WIFI_INIT: {
+            prefs.begin("wifi_cfg", false);
+            saved_ssid = prefs.getString("ssid", "");
+            saved_pass = prefs.getString("pass", "");
+            if (saved_ssid.length() > 0) {
+                rgb_set_color(0, 0, 255); 
+                Serial.printf("\n[WiFi] 尝试静默连接记忆网络: [%s]\n", saved_ssid.c_str());
+                WiFi.begin(saved_ssid.c_str(), saved_pass.c_str());
+                wifi_timer = millis();
+                wifi_state = WIFI_WAIT_AUTO;
+            } else {
+                wifi_state = WIFI_SCAN;
+            }
+            break;
+        }
+        case WIFI_WAIT_AUTO: {
+            if (WiFi.status() == WL_CONNECTED) {
+                rgb_set_color(0, 255, 0); 
+                Serial.printf("\n[WiFi] 直连 [%s] 成功!\n", saved_ssid.c_str());
+                wifi_state = WIFI_CONNECTED;
+            } else if (millis() - wifi_timer > 15000) { 
+                Serial.println("\n[WiFi] 自动连接失败，进入配网模式！");
+                wifi_state = WIFI_SCAN;
+            }
+            break;
+        }
+        case WIFI_SCAN: {
+            static unsigned long last_scan_time = 0;
+            if (millis() - last_scan_time > 5000 || last_scan_time == 0) { 
+                last_scan_time = millis();
+                WiFi.disconnect(); 
+                delay(10);
+                rgb_set_color(128, 0, 128); 
+                Serial.println("\n====================================");
+                Serial.println("[WiFi] 正在扫描附近网络...");
+                scan_count = WiFi.scanNetworks();
+                if (scan_count > 0) {
+                    rgb_set_color(255, 255, 0); 
+                    Serial.printf("[WiFi] 找到 %d 个网络：\n", scan_count);
+                    for (int i = 0; i < scan_count; ++i) {
+                        Serial.printf("  [%d] %s\n", i, WiFi.SSID(i).c_str());
+                    }
+                    Serial.println(">> 请在输入框输入你要连接的 WiFi 序号, 然后按回车: ");
+                    wifi_timer = millis(); 
+                    wifi_state = WIFI_WAIT_INDEX;
+                } else {
+                    rgb_set_color(255, 0, 0); 
+                    Serial.println("[WiFi] 未找到网络，稍后重试...");
+                }
+            }
+            break;
+        }
+        case WIFI_WAIT_INDEX: {
+            if (millis() - wifi_timer > 30000) {
+                rgb_set_color(255, 0, 0); 
+                Serial.println("\n[WiFi] 🕒 等待输入超时，已暂停配网。");
+                wifi_state = WIFI_IDLE;
+                break;
+            }
+            String input = get_serial_input_nonblocking();
+            if (input.length() > 0) {
+                selected_index = input.toInt();
+                if (selected_index >= 0 && selected_index < scan_count) {
+                    target_ssid = WiFi.SSID(selected_index);
+                    if (target_ssid == saved_ssid && saved_pass.length() > 0) {
+                        rgb_set_color(0, 0, 255); 
+                        Serial.printf("[WiFi] 🔑 免密自动连接 [%s]...\n", target_ssid.c_str());
+                        target_pass = saved_pass;
+                        WiFi.begin(target_ssid.c_str(), target_pass.c_str());
+                        wifi_timer = millis();
+                        wifi_state = WIFI_CONNECTING;
+                    } else {
+                        Serial.print(">> 请输入密码，然后按回车: ");
+                        wifi_timer = millis(); 
+                        wifi_state = WIFI_WAIT_PASS;
+                    }
+                } else {
+                    Serial.println("\n[错误] 无效的序号！");
+                }
+            }
+            break;
+        }
+        case WIFI_WAIT_PASS: {
+            if (millis() - wifi_timer > 30000) {
+                wifi_state = WIFI_IDLE;
+                break;
+            }
+            String input = get_serial_input_nonblocking();
+            if (input.length() > 0) {
+                target_pass = input;
+                rgb_set_color(0, 0, 255); 
+                WiFi.begin(target_ssid.c_str(), target_pass.c_str());
+                wifi_timer = millis();
+                wifi_state = WIFI_CONNECTING;
+            }
+            break;
+        }
+        case WIFI_CONNECTING: {
+            if (WiFi.status() == WL_CONNECTED) {
+                rgb_set_color(0, 255, 0); 
+                Serial.printf("\n[WiFi] ★ 成功连接至 [%s]!\n", target_ssid.c_str());
+                prefs.putString("ssid", target_ssid);
+                prefs.putString("pass", target_pass);
+                saved_ssid = target_ssid;
+                saved_pass = target_pass;
+                WiFi.scanDelete();
+                wifi_state = WIFI_CONNECTED;
+            } else if (millis() - wifi_timer > 15000) {
+                rgb_set_color(255, 0, 0); 
+                WiFi.disconnect();
+                WiFi.scanDelete();
+                wifi_state = WIFI_SCAN;
+            }
+            break;
+        }
+        case WIFI_IDLE: {
+            static unsigned long last_bg_retry = 0;
+            if (saved_ssid.length() > 0 && millis() - last_bg_retry > 15000) {
+                last_bg_retry = millis();
+                if (WiFi.status() != WL_CONNECTED) WiFi.begin(saved_ssid.c_str(), saved_pass.c_str()); 
+            }
+            if (saved_ssid.length() > 0 && WiFi.status() == WL_CONNECTED) {
+                rgb_set_color(0, 255, 0); 
+                Serial.printf("\n\n[WiFi] 🎉 后台自动重连成功！\n");
+                wifi_state = WIFI_CONNECTED;
+                break;
+            }
+            String input = get_serial_input_nonblocking();
+            if (input.length() > 0) {
+                rgb_set_color(128, 0, 128); 
+                wifi_state = WIFI_SCAN;
+            }
+            break;
+        }
+        case WIFI_CONNECTED: {
+            if (WiFi.status() != WL_CONNECTED) {
+                rgb_set_color(0, 0, 255); 
+                WiFi.reconnect();
+                wifi_timer = millis();
+                wifi_state = WIFI_WAIT_AUTO;
+                break;
+            }
+            
+            static unsigned long lastReconnectAttempt = 0;
+            if (!client.connected()) {
+                unsigned long now = millis();
+                if (now - lastReconnectAttempt > 5000) {
+                    lastReconnectAttempt = now;
+                    if (client.connect(client_id, mqtt_user, mqtt_pass)) {
+                        Serial.println("\n[MQTT] 云端服务器已连接!");
+                        // ★ 连接成功后，立刻向服务器订阅控制指令
+                        client.subscribe(topic_command);
+                    }
+                }
+            } else {
+                client.loop(); 
+            }
+            break;
+        }
+    }
+}
+
+bool wifi_mqtt_is_connected(void) { return (WiFi.status() == WL_CONNECTED) && client.connected(); }
+void wifi_mqtt_publish(const char* topic, const char* payload) { if (wifi_mqtt_is_connected()) client.publish(topic, payload); }
+void wifi_clear_saved_config(void) { prefs.begin("wifi_cfg", false); prefs.clear(); }
+
+
+
+
+#ifndef __WIFI_MQTT_H
+#define __WIFI_MQTT_H
+
+#include <Arduino.h>
+
+void wifi_mqtt_init(void);                                      
+void wifi_mqtt_loop(void);                                      
+bool wifi_mqtt_is_connected(void);                              
+void wifi_mqtt_publish(const char* topic, const char* payload); 
+void wifi_clear_saved_config(void); 
+
+// ★ 新增：允许外部（主程序）注册一个回调函数，用来接收服务器下发的字符串指令
+void wifi_mqtt_set_cmd_callback(void (*callback)(String));
+
+#endif

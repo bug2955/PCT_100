@@ -1,0 +1,265 @@
+#include "app_system.h"
+#include "key.h"
+#include "relay.h"
+#include "version.h"
+#include "light_sensor.h"  
+#include "temp_sensor.h"   
+#include "oled_display.h"  
+#include "wifi_mqtt.h"  
+#include "rgb_led.h"       
+#include <ArduinoJson.h> 
+
+static const char* topic_status = "chemctrl/PCT_100_014/status"; 
+
+static String currentMode = "auto";    
+static uint8_t relayState = 0;         
+static bool systemEnabled = false;     
+
+static unsigned long pressStartTime = 0;
+static bool key2Pressed = false;
+static bool longPressHandled = false;
+static unsigned long lastOledTime = 0; 
+static unsigned long lastPublishTime = 0;
+
+static float dynamic_temp_thresh = TEMP_THRESHOLD_ON;
+static uint16_t dynamic_light_thresh = LIGHT_THRESHOLD_ON;
+
+// =======================================================
+// 状态打包上报函数
+// =======================================================
+void report_device_status() {
+    if (!wifi_mqtt_is_connected()) return;
+    
+    char jsonBuffer[256];
+    // ★ 修复：改回使用 digitalRead 来判断继电器真实状态
+    bool r3_light = (digitalRead(RELAY1_PIN) == RELAY_ON_LEVEL);
+    bool r4_fan   = (digitalRead(RELAY2_PIN) == RELAY_ON_LEVEL);
+
+    sprintf(jsonBuffer, "{\"temperature\":%.1f,\"light\":%d,\"mode\":\"%s\",\"key1_lock\":%s,\"relay3\":%s,\"relay4\":%s}",
+            get_temperature(), 
+            get_light_value(), 
+            currentMode.c_str(), 
+            systemEnabled ? "true" : "false",
+            r3_light ? "true" : "false",
+            r4_fan ? "true" : "false");
+
+    wifi_mqtt_publish(topic_status, jsonBuffer);
+}
+
+// =======================================================
+// 远程 MQTT 指令回调函数
+// =======================================================
+void handle_mqtt_command(String payload) {
+    Serial.println("\n[指令接收] 收到服务器下发指令: " + payload);
+
+    StaticJsonDocument<256> doc;
+    DeserializationError error = deserializeJson(doc, payload);
+
+    if (error) {
+        Serial.print("[错误] JSON 解析失败: ");
+        Serial.println(error.c_str());
+        return;
+    }
+
+    String cmd = doc["cmd"];
+
+    if (cmd == "reboot") {
+        Serial.println("[执行] 收到远程重启指令，正在重启...");
+        delay(500);
+        ESP.restart();
+    }
+    else if (cmd == "get_status") {
+        Serial.println("[执行] 收到状态查询指令，立即上报...");
+        report_device_status();
+    }
+    else if (cmd == "set_threshold") {
+        if (doc.containsKey("temp"))  dynamic_temp_thresh = doc["temp"];
+        if (doc.containsKey("light")) dynamic_light_thresh = doc["light"];
+        Serial.printf("[执行] 阈值已更新 -> 温度: %.1f, 光照: %d\n", dynamic_temp_thresh, dynamic_light_thresh);
+    }
+    else if (cmd == "set_mode") {
+        if (!systemEnabled) {
+            Serial.println("[拦截] 总闸关闭中，拒绝切换模式！");
+            return;
+        }
+        String new_mode = doc["mode"];
+        if (new_mode == "auto" || new_mode == "manual") {
+            currentMode = new_mode;
+            relayState = 0;
+            relay_off_all(); 
+            Serial.println("[执行] 模式已切换为: " + currentMode);
+        }
+    }
+    else if (cmd == "set_relay") {
+        if (!systemEnabled) {
+            Serial.println("[拦截] 总闸关闭中，拒绝控制继电器！");
+            return;
+        }
+        int relayNum = doc["relay"];
+        bool val = doc["value"];
+        
+        // ★ 修复：改回使用 digitalRead 获取当前引脚状态
+        bool r3_light = (digitalRead(RELAY1_PIN) == RELAY_ON_LEVEL);
+        bool r4_fan   = (digitalRead(RELAY2_PIN) == RELAY_ON_LEVEL);
+        
+        if (relayNum == 3) r3_light = val;
+        if (relayNum == 4) r4_fan = val;
+        
+        relayState = 0;
+        if (r4_fan)   relayState += 1;
+        if (r3_light) relayState += 2;
+        
+        relay_set_state(relayState);
+        Serial.printf("[执行] 继电器 %d 状态已设为 %s\n", relayNum, val ? "ON" : "OFF");
+    }
+    else {
+        Serial.println("[错误] 未知的控制指令！");
+    }
+}
+
+// =======================================================
+// 系统业务初始化
+// =======================================================
+void app_system_init(void) {
+    key_init();
+    relay_init();
+    light_sensor_init(); 
+    temp_sensor_init();  
+    oled_init();         
+    rgb_init();          
+    
+    oled_update("配网中", false, get_light_value(), dynamic_light_thresh, get_temperature(), dynamic_temp_thresh, false, false, false);
+    rgb_boot_animation();
+
+    relayState = 0;
+    relay_off_all();
+    delay(1000); 
+    
+    wifi_mqtt_set_cmd_callback(handle_mqtt_command);
+    
+    Serial.println("\n系统初始化完毕，当前状态：[自动模式]");
+}
+
+// =======================================================
+// 系统核心业务循环
+// =======================================================
+void app_system_loop(void) {
+    bool isKey1On = (digitalRead(KEY1_PIN) == KEY_ACTIVE_LEVEL); 
+    if (!isKey1On) {
+        if (systemEnabled) {
+            relay_off_all();    
+            relayState = 0;     
+            systemEnabled = false;
+            key2Pressed = false; 
+            longPressHandled = false;
+            Serial.println("[状态] 总闸已关闭，继电器断开，进入锁定状态");
+        }
+    } else {
+        if (!systemEnabled) {
+            systemEnabled = true;
+            currentMode = "auto"; 
+            Serial.println("[状态] 总闸已开启，系统准备就绪，已恢复至: 【自动模式】");
+        }
+    }
+
+    if (systemEnabled) {
+        static bool lastRawState = false;       
+        static bool stableState = false;        
+        static unsigned long lastDebounceTime = 0; 
+        
+        bool rawState = (digitalRead(KEY2_PIN) == KEY_ACTIVE_LEVEL);
+        
+        if (rawState != lastRawState) lastDebounceTime = millis();
+        
+        if ((millis() - lastDebounceTime) > 30) {
+            if (rawState != stableState) {
+                stableState = rawState;
+                if (stableState == true) {
+                    pressStartTime = millis();
+                    longPressHandled = false; 
+                } 
+                else {
+                    unsigned long holdTime = millis() - pressStartTime;
+                    if (!longPressHandled) {
+                        if (currentMode == "manual") {
+                            relayState = (relayState + 1) % 4; 
+                            relay_set_state(relayState);
+                            Serial.printf("[手动操作] 短按触发！继电器状态切换至: %d\n", relayState);
+                        } else {
+                            Serial.println("[无效操作] 自动模式下短按被屏蔽！");
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (stableState == true && !longPressHandled) {
+            if (millis() - pressStartTime >= 2000) {
+                longPressHandled = true; 
+                currentMode = (currentMode == "auto") ? "manual" : "auto";
+                relayState = 0;
+                relay_off_all();
+                Serial.println("\n>>> 已切换至: 【" + currentMode + "模式】 <<<");
+            }
+        }
+        lastRawState = rawState;
+    }
+
+    static unsigned long lastSensorCheck = 0;
+    if (systemEnabled && currentMode == "auto" && (millis() - lastSensorCheck > 500)) {
+        lastSensorCheck = millis(); 
+        
+        uint16_t currentLight = get_light_value();
+        if (currentLight < dynamic_light_thresh) {
+            digitalWrite(RELAY1_PIN, RELAY_ON_LEVEL);  
+        } else if (currentLight > (dynamic_light_thresh + 250)) { 
+            digitalWrite(RELAY1_PIN, RELAY_OFF_LEVEL); 
+        }
+
+        float currentTemp = get_temperature();
+        if (currentTemp > -100.0) { 
+            if (currentTemp > dynamic_temp_thresh) {
+                digitalWrite(RELAY2_PIN, RELAY_ON_LEVEL);  
+            } else if (currentTemp < (dynamic_temp_thresh - 1.0)) { 
+                digitalWrite(RELAY2_PIN, RELAY_OFF_LEVEL); 
+            }
+        }
+    }
+
+    unsigned long now = millis();
+    if (now - lastOledTime > 200) {
+        lastOledTime = now;
+        
+        // ★ 修复：改回使用 digitalRead 读取状态传给屏幕
+        bool isLightOn = (digitalRead(RELAY1_PIN) == RELAY_ON_LEVEL); 
+        bool isFanOn = (digitalRead(RELAY2_PIN) == RELAY_ON_LEVEL); 
+
+        oled_update(
+            currentMode, 
+            systemEnabled, 
+            get_light_value(), dynamic_light_thresh, 
+            get_temperature(), dynamic_temp_thresh, 
+            isLightOn, isFanOn,
+            wifi_mqtt_is_connected() 
+        );
+    }
+
+    if (now - lastPublishTime > 2000) {
+        lastPublishTime = now;
+        report_device_status(); 
+    }
+}
+
+
+
+
+#ifndef __APP_SYSTEM_H
+#define __APP_SYSTEM_H
+
+#include <Arduino.h>
+
+// 暴露给主程序的极简接口
+void app_system_init(void);
+void app_system_loop(void);
+
+#endif

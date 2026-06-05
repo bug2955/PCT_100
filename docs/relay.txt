@@ -1,0 +1,61 @@
+#include "relay.h"
+
+void relay_init(void)
+{
+    pinMode(RELAY1_PIN, OUTPUT);
+    pinMode(RELAY2_PIN, OUTPUT);
+    relay_off_all();  // 上电默认全部断开
+}
+
+// 强制关闭所有继电器
+void relay_off_all(void)
+{
+    digitalWrite(RELAY1_PIN, RELAY_OFF_LEVEL);
+    digitalWrite(RELAY2_PIN, RELAY_OFF_LEVEL);
+}
+
+// 四态控制机: 0(00), 1(01), 2(10), 3(11)
+void relay_set_state(uint8_t state)
+{
+    switch(state) {
+        case 0: // 00: 全关
+            digitalWrite(RELAY1_PIN, RELAY_OFF_LEVEL);
+            digitalWrite(RELAY2_PIN, RELAY_OFF_LEVEL);
+            break;
+        case 1: // 01: 仅继电器2(风扇)开
+            digitalWrite(RELAY1_PIN, RELAY_OFF_LEVEL);
+            digitalWrite(RELAY2_PIN, RELAY_ON_LEVEL);
+            break;
+        case 2: // 10: 仅继电器1(灯)开
+            digitalWrite(RELAY1_PIN, RELAY_ON_LEVEL);
+            digitalWrite(RELAY2_PIN, RELAY_OFF_LEVEL);
+            break;
+        case 3: // 11: 全开
+            digitalWrite(RELAY1_PIN, RELAY_ON_LEVEL);
+            digitalWrite(RELAY2_PIN, RELAY_ON_LEVEL);
+            break;
+    }
+}
+
+
+
+h
+#ifndef __RELAY_H
+#define __RELAY_H
+
+#include <Arduino.h>
+
+// 继电器引脚定义
+#define RELAY1_PIN 6  // 灯
+#define RELAY2_PIN 7  // 风扇
+
+// 继电器触发电平定义 (根据之前的测试，HIGH应该是开启)
+#define RELAY_ON_LEVEL    HIGH
+#define RELAY_OFF_LEVEL   LOW
+
+// 函数声明
+void relay_init(void);
+void relay_set_state(uint8_t state);
+void relay_off_all(void);
+
+#endif
