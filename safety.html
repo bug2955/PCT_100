@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>化工安全知识 - PCT_100 实训平台</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ========== 导航栏 ========== -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="logo-icon">&#9881;</div>
+      <span class="brand-text">PCT_100 实训平台</span>
+    </div>
+    <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('show')">&#9776;</button>
+    <ul class="nav-links">
+      <li><a href="index.html">产品说明书</a></li>
+      <li><a href="safety.html" class="active">化工安全知识</a></li>
+      <li><a href="projects.html">实训项目展示</a></li>
+    </ul>
+  </nav>
+
+  <!-- ========== Hero 区 ========== -->
+  <header class="hero">
+    <h1>化工安全知识</h1>
+    <p class="subtitle">
+      安全是化工生产的生命线 &mdash; 掌握安全知识，守护生命安全
+    </p>
+  </header>
+
+  <!-- ========== 安全理念 ========== -->
+  <section class="container">
+    <div class="section-title">
+      <h2>化工安全核心理念</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="highlight-row">
+      <div class="highlight">
+        <div class="hl-num" style="font-size:2.2rem;">预防为主</div>
+        <div class="hl-label">提前识别风险，消除隐患于未然</div>
+      </div>
+      <div class="highlight">
+        <div class="hl-num" style="font-size:2.2rem;">全员参与</div>
+        <div class="hl-label">每个人都是安全第一责任人</div>
+      </div>
+      <div class="highlight">
+        <div class="hl-num" style="font-size:2.2rem;">持续改进</div>
+        <div class="hl-label">PDCA 循环，不断完善安全管理</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 危险源识别 ========== -->
+  <section class="container" style="padding-top:0;">
+    <div class="section-title">
+      <h2>常见危险源识别</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon red">&#9762;</div>
+        <h3>化学品泄漏</h3>
+        <p>
+          酸、碱、有机溶剂等化学品泄漏可能造成中毒、灼伤或环境污染。
+          应立即启动泄漏应急预案，使用吸附材料围堵，穿戴防护装备处理。
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-icon orange">&#128293;</div>
+        <h3>火灾与爆炸</h3>
+        <p>
+          易燃液体、可燃气体、粉尘等均可能引发火灾或爆炸。
+          严格控制火源，保持良好通风，定期检查消防设施完好有效。
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-icon red">&#128300;</div>
+        <h3>高温高压</h3>
+        <p>
+          反应釜、锅炉、蒸汽管道等高温高压设备存在烫伤和爆裂风险。
+          定期检测安全阀、压力表，严禁超温超压运行。
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-icon orange">&#9889;</div>
+        <h3>电气安全</h3>
+        <p>
+          化工场所潮湿、腐蚀性气体多，电气设备易发生漏电、短路。
+          使用防爆电气设备，定期检查接地保护，禁止私拉乱接电线。
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-icon">&#128168;</div>
+        <h3>有毒有害气体</h3>
+        <p>
+          一氧化碳、硫化氢、氯气等有毒气体可能导致中毒窒息。
+          安装气体检测报警器，进入受限空间前必须进行气体检测。
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-icon red">&#9888;</div>
+        <h3>机械伤害</h3>
+        <p>
+          搅拌器、泵、压缩机等运转设备可能造成卷入、切割伤害。
+          确保防护罩完好，严格执行上锁挂牌（LOTO）程序。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PPE 个人防护 ========== -->
+  <section class="container">
+    <div class="section-title">
+      <h2>个人防护装备 (PPE)</h2>
+      <div class="divider"></div>
+    </div>
+    <img
+      src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=A+clean+flat+illustration+of+personal+protective+equipment+for+chemical+laboratory:+safety+goggles,+lab+coat,+chemical-resistant+gloves,+hard+hat,+respirator+mask,+arranged+neatly+on+a+white+background,+professional+blue+and+teal+color+accents,+minimal+design+style&image_size=landscape_16_9"
+      alt="个人防护装备 PPE"
+      style="width:100%;max-width:800px;display:block;margin:0 auto 2rem;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.1);"
+    />
+
+    <div class="card-grid">
+      <div class="card">
+        <h3>&#128083; 防护眼镜 / 面罩</h3>
+        <p>防止化学品飞溅、粉尘、强光对眼部的伤害。接触腐蚀性化学品时必须佩戴。</p>
+      </div>
+      <div class="card">
+        <h3>&#128084; 实验服 / 防护服</h3>
+        <p>阻燃、耐酸碱材质的防护服可有效隔离化学品与皮肤的接触。</p>
+      </div>
+      <div class="card">
+        <h3>&#128075; 防护手套</h3>
+        <p>根据化学品性质选择丁腈、乳胶或氯丁橡胶手套，每次使用前检查完整性。</p>
+      </div>
+      <div class="card">
+        <h3>&#128119; 安全帽</h3>
+        <p>进入生产装置区、施工现场必须佩戴，防止坠落物伤害。</p>
+      </div>
+      <div class="card">
+        <h3>&#128132; 防毒面具 / 口罩</h3>
+        <p>在有毒气体或粉尘环境中，需佩戴对应滤毒盒的防毒面具。</p>
+      </div>
+      <div class="card">
+        <h3>&#128095; 安全鞋</h3>
+        <p>防砸、防穿刺、防静电安全鞋是进入化工车间的基本要求。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 应急处置 ========== -->
+  <section class="container">
+    <div class="section-title">
+      <h2>应急处置流程</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="alert alert-danger">
+      <span class="alert-icon">&#128680;</span>
+      <span><strong>紧急情况口诀：</strong>一停（停止作业）、二报（报警报告）、三疏散（有序撤离）、四处置（专业人员处置）。</span>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>发现险情</h4>
+          <p>第一时间判断事故类型（泄漏/火灾/中毒等），评估危险程度和影响范围。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>紧急报警</h4>
+          <p>拨打内部应急电话或 119，清晰报告：地点、物质、火势/泄漏情况、有无人员被困。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>人员疏散</h4>
+          <p>按疏散路线有序撤离至上风向集合点，清点人数，切勿乘坐电梯。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>初期处置</h4>
+          <p>在确保自身安全前提下，使用灭火器、消防沙等器材进行初期控制。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h4>配合救援</h4>
+          <p>向消防人员提供 MSDS（化学品安全说明书）和工艺流程图，协助制定救援方案。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 实训安全守则 ========== -->
+  <section class="container">
+    <div class="section-title">
+      <h2>实训室安全守则</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="alert alert-warning">
+      <span class="alert-icon">&#128221;</span>
+      <span><strong>实训前：</strong>预习实验内容，了解所用化学品的 MSDS 信息，检查仪器设备完好性。</span>
+    </div>
+    <div class="alert alert-info">
+      <span class="alert-icon">&#128221;</span>
+      <span><strong>实训中：</strong>严格按操作规程操作，不得擅自改变实验条件。全程穿戴 PPE，禁止饮食。</span>
+    </div>
+    <div class="alert alert-warning">
+      <span class="alert-icon">&#128221;</span>
+      <span><strong>实训后：</strong>关闭设备电源，清理实验台面，废液分类收集，做好实验记录。</span>
+    </div>
+  </section>
+
+  <!-- ========== 页脚 ========== -->
+  <footer class="footer">
+    <p>&copy; 2026 <strong>PCT_100</strong> 化工控制实训平台 &mdash; 安全第一，预防为主</p>
+  </footer>
+
+</body>
+</html>

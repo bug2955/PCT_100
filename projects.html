@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>实训项目展示 - PCT_100 实训平台</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ========== 导航栏 ========== -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="logo-icon">&#9881;</div>
+      <span class="brand-text">PCT_100 实训平台</span>
+    </div>
+    <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('show')">&#9776;</button>
+    <ul class="nav-links">
+      <li><a href="index.html">产品说明书</a></li>
+      <li><a href="safety.html">化工安全知识</a></li>
+      <li><a href="projects.html" class="active">实训项目展示</a></li>
+    </ul>
+  </nav>
+
+  <!-- ========== Hero 区 ========== -->
+  <header class="hero">
+    <h1>实训项目展示</h1>
+    <p class="subtitle">
+      基于 PCT_100 平台的综合实训项目 &mdash; 理论结合实践，培养工程能力
+    </p>
+  </header>
+
+  <!-- ========== 实训体系 ========== -->
+  <section class="container">
+    <div class="section-title">
+      <h2>实训体系概览</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="highlight-row">
+      <div class="highlight">
+        <div class="hl-num">6</div>
+        <div class="hl-label">核心实训项目</div>
+      </div>
+      <div class="highlight">
+        <div class="hl-num" style="font-size:1.8rem;">基础→进阶</div>
+        <div class="hl-label">递进式教学体系</div>
+      </div>
+      <div class="highlight">
+        <div class="hl-num" style="font-size:1.8rem;">IoT</div>
+        <div class="hl-label">物联网综合实训</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 项目卡片 ========== -->
+  <section class="container" style="padding-top:0;">
+    <div class="section-title">
+      <h2>实训项目</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="card-grid">
+      <!-- 项目一 -->
+      <div class="img-card">
+        <img
+          src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=A+temperature+sensor+DS18B20+connected+to+a+microcontroller+with+a+small+fan,+on+a+laboratory+bench,+clean+technical+setup,+blue+and+white+color+scheme,+minimal+style&image_size=landscape_16_9"
+          alt="项目一：温度采集与控制"
+        />
+        <div class="img-card-body">
+          <h4>项目一：温度采集与风扇控制</h4>
+          <p>
+            <strong>难度：</strong>&#9733;&#9733;&#9734;&#9734;&#9734; 入门级<br />
+            学习 DS18B20 单总线通信协议，实现温度数据采集；
+            设定滞回阈值，通过继电器驱动风扇实现自动温控。
+            掌握传感器驱动、执行器控制、阈值逻辑编程。
+          </p>
+        </div>
+      </div>
+
+      <!-- 项目二 -->
+      <div class="img-card">
+        <img
+          src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=A+BH1750+light+sensor+and+a+LED+lamp+on+a+laboratory+desk+connected+to+a+microcontroller,+automatic+lighting+control+demonstration,+clean+technical+style,+blue+and+white+color+scheme&image_size=landscape_16_9"
+          alt="项目二：光照采集与灯控"
+        />
+        <div class="img-card-body">
+          <h4>项目二：光照采集与灯控</h4>
+          <p>
+            <strong>难度：</strong>&#9733;&#9733;&#9734;&#9734;&#9734; 入门级<br />
+            学习 BH1750 I2C 通信协议，采集环境光照强度；
+            根据光照阈值自动控制继电器开关灯。
+            掌握 I2C 总线通信和双阈值控制算法。
+          </p>
+        </div>
+      </div>
+
+      <!-- 项目三 -->
+      <div class="img-card">
+        <img
+          src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=An+OLED+display+screen+showing+temperature+and+light+data+readings+connected+to+an+ESP32+microcontroller+on+a+laboratory+bench,+clean+technical+style,+blue+and+teal+color+scheme&image_size=landscape_16_9"
+          alt="项目三：OLED 显示与 HMI"
+        />
+        <div class="img-card-body">
+          <h4>项目三：OLED 显示与人机交互</h4>
+          <p>
+            <strong>难度：</strong>&#9733;&#9733;&#9733;&#9734;&#9734; 中级<br />
+            驱动 SSD1306 OLED 显示温度、光照、继电器状态；
+            实现按键扫描与多页面菜单切换。
+            掌握人机交互界面（HMI）设计和状态机编程。
+          </p>
+        </div>
+      </div>
+
+      <!-- 项目四 -->
+      <div class="img-card">
+        <img
+          src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=An+ESP32+microcontroller+with+WiFi+antenna+sending+data+to+a+cloud+dashboard+showing+temperature+and+light+charts,+IoT+demonstration,+clean+blue+and+teal+color+scheme,+minimal+style&image_size=landscape_16_9"
+          alt="项目四：WiFi 与 MQTT 物联网"
+        />
+        <div class="img-card-body">
+          <h4>项目四：WiFi 与 MQTT 物联网通信</h4>
+          <p>
+            <strong>难度：</strong>&#9733;&#9733;&#9733;&#9733;&#9734; 中高级<br />
+            配置 ESP32 WiFi 连接，通过 MQTT 协议上报传感数据；
+            使用 JSON 格式封装数据包，实现远程指令下发控制。
+            掌握物联网三层架构和 MQTT QoS 机制。
+          </p>
+        </div>
+      </div>
+
+      <!-- 项目五 -->
+      <div class="img-card">
+        <img
+          src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=A+diagram+showing+FreeRTOS+task+scheduling+with+multiple+threads+running+on+ESP32,+queue+communication+between+tasks,+software+architecture+concept,+blue+and+teal+color+scheme,+clean+minimal+style&image_size=landscape_16_9"
+          alt="项目五：FreeRTOS 多线程"
+        />
+        <div class="img-card-body">
+          <h4>项目五：FreeRTOS 多线程编程</h4>
+          <p>
+            <strong>难度：</strong>&#9733;&#9733;&#9733;&#9733;&#9734; 中高级<br />
+            创建多个 FreeRTOS 任务：网络通信、LED 渲染、主控逻辑；
+            使用 xQueue 实现任务间安全通信。
+            掌握实时操作系统（RTOS）任务调度、优先级、队列等核心概念。
+          </p>
+        </div>
+      </div>
+
+      <!-- 项目六 -->
+      <div class="img-card">
+        <img
+          src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=A+comprehensive+industrial+process+control+training+system+with+sensors+actuators+display+and+cloud+connectivity+all+integrated,+laboratory+setup,+clean+professional+blue+and+teal+color+scheme&image_size=landscape_16_9"
+          alt="项目六：综合控制"
+        />
+        <div class="img-card-body">
+          <h4>项目六：多回路综合控制系统</h4>
+          <p>
+            <strong>难度：</strong>&#9733;&#9733;&#9733;&#9733;&#9733; 高级<br />
+            整合温度、光照两个控制回路，实现协同工作；
+            本地 OLED 显示 + MQTT 远程监控双重界面；
+            RGB LED 综合状态指示。
+            全面掌握嵌入式系统设计与过程控制原理。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 学习路径 ========== -->
+  <section class="container">
+    <div class="section-title">
+      <h2>推荐学习路径</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>基础入门（第 1-2 周）</h4>
+          <p>完成项目一和项目二，学习传感器驱动和继电器控制，掌握 Arduino 编程基础。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>人机交互（第 3 周）</h4>
+          <p>完成项目三，学习 OLED 显示驱动和按键交互，掌握用户界面设计方法。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>物联网进阶（第 4-5 周）</h4>
+          <p>完成项目四，学习 WiFi 和 MQTT 通信，搭建云平台数据看板。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>系统深化（第 6-7 周）</h4>
+          <p>完成项目五和项目六，深入学习 FreeRTOS 和多回路协同控制设计。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 技能收获 ========== -->
+  <section class="container">
+    <div class="section-title">
+      <h2>你将掌握的技能</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon green">&#128187;</div>
+        <h3>嵌入式 C/C++ 编程</h3>
+        <p>掌握 Arduino 框架和 ESP32 平台开发，理解底层硬件驱动编程方法。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">&#128268;</div>
+        <h3>通信协议</h3>
+        <p>精通 I2C、单总线 (OneWire)、UART 等常用工业通信协议。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon orange">&#127760;</div>
+        <h3>物联网技术</h3>
+        <p>掌握 WiFi 连接、MQTT 协议、JSON 数据格式、云平台接入等 IoT 核心技术。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon green">&#9881;</div>
+        <h3>RTOS 实时系统</h3>
+        <p>理解 FreeRTOS 多任务调度、队列通信、优先级管理等实时操作系统原理。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon orange">&#128200;</div>
+        <h3>过程控制理论</h3>
+        <p>实践温度/光照闭环控制、滞回算法、PID 参数整定等过程控制核心方法。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">&#128736;</div>
+        <h3>工程实践能力</h3>
+        <p>培养系统设计、故障排查、文档撰写等综合工程素养。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 页脚 ========== -->
+  <footer class="footer">
+    <p>&copy; 2026 <strong>PCT_100</strong> 化工控制实训平台 &mdash; 实践出真知</p>
+  </footer>
+
+</body>
+</html>
