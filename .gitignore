@@ -5,6 +5,7 @@
 credentials.*
 config/secrets.*
 wifi_config.*
+mqtt_config.*
 
 # IDE 配置
 .vscode/
@@ -12,6 +13,8 @@ wifi_config.*
 *.swp
 *.bak
 *.tmp
+*.sublime-project
+*.sublime-workspace
 
 # 编译产物
 *.o
@@ -20,18 +23,36 @@ wifi_config.*
 *.hex
 build/
 dist/
+output/
 
 # 操作系统文件
 Thumbs.db
 .DS_Store
 __pycache__/
+desktop.ini
 
 # 日志文件
 *.log
 *.txt.log
+log/
 
 # Arduino 临时文件
 *.ino.cpp
 *.ino.hex
 *.ino.eep
 *.ino.with_bootloader.hex
+.pioenvs/
+.piolibdeps/
+
+# 临时文件
+*.tmp
+*.temp
+*.bak
+
+# 测试文件
+test_*.cpp
+test_*.h
+
+# 备份文件
+*.backup
+*~
