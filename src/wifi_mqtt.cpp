@@ -35,7 +35,8 @@ static void show_mqtt_config() {
     Serial.println("IP地址    : " + dyn_mqtt_server);
     Serial.println("端口号    : " + String(dyn_mqtt_port));
     Serial.println("用户名    : " + dyn_mqtt_user);
-    Serial.println("密  码    : " + (dyn_mqtt_pass.length() > 0 ? "******" : "(未设置)"));
+    Serial.print("密  码    : ");
+    Serial.println(dyn_mqtt_pass.length() > 0 ? "******" : "(未设置)");
     Serial.println("设备 ID   : " + dyn_client_id);
     Serial.println("==============================");
 }
