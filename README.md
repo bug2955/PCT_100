@@ -3,20 +3,35 @@
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Platform](https://img.shields.io/badge/Platform-Arduino-00979D.svg)
 ![MCU](https://img.shields.io/badge/MCU-ESP32--C3-blueviolet.svg)
+![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-V8.0-orange.svg)
 
-基于 ESP32-C3 微控制器的模块化过程控制教学平台，集温度、光照、液位、流量多回路控制于一体。
+> 🎓 **化工自动化专业实训教学平台** —— 基于 ESP32-C3 微控制器的模块化过程控制实训装置
 
 ---
 
 ## 📋 项目简介
 
-PCT_100 是专为化工自动化、过程控制课程设计的实训装置，让学生在实践中掌握：
+**PCT_100** 是一套专为高校化工自动化、过程控制课程设计的综合性实训平台。通过理论与实践相结合的方式，帮助学生深入理解工业过程控制的核心原理。
 
-- **传感器技术**：温度、光照采集与标定
-- **执行器控制**：继电器、LED、风扇驱动
-- **通信协议**：I2C、OneWire、MQTT
-- **操作系统**：FreeRTOS 多线程调度
-- **物联网**：WiFi 接入与云端监控
+### ✨ 核心能力培养
+
+| 能力领域 | 实践内容 |
+|----------|----------|
+| **传感器技术** | DS18B20 温度采集、BH1750 光照检测、传感器标定 |
+| **执行器控制** | 继电器驱动、LED 调光、风扇调速 |
+| **通信协议** | I2C、OneWire、UART、MQTT |
+| **操作系统** | FreeRTOS 多任务调度、队列通信 |
+| **物联网** | WiFi 配网、MQTT 云端接入、远程监控 |
+| **控制算法** | 滞回控制、PID 参数整定、状态机设计 |
+
+### 🏆 项目特色
+
+- **模块化设计**：传感器与执行器独立模块，支持自由组合
+- **真实工业场景**：模拟化工过程控制中的温度、光照控制回路
+- **物联网接入**：支持 MQTT 协议实现远程数据监控
+- **FreeRTOS 架构**：真正的多线程实时操作系统实践
+- **完整文档支持**：配套产品说明书、安全手册、实训指南
 
 ---
 
